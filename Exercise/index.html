@@ -6,10 +6,21 @@
         <title></title>
         <meta name="description" content="">
         <meta name="viewport" content="width=device-width, initial-scale=1">
+        <script src="https://d3js.org/d3.v7.min.js"></script>
+        <script src="js/d3.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/d3-array@3"></script>
+        <script src="https://cdn.jsdelivr.net/npm/d3-geo@3"></script>
+        <script src="https://cdn.jsdelivr.net/npm/d3-geo-projection@4"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/d3-legend/2.24.0/d3-legend.js"></script>
+
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.1/dist/css/bootstrap.min.css">
+        <script src="https://cdn.jsdelivr.net/npm/jquery@3.6.0/dist/jquery.slim.min.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.1/dist/js/bootstrap.bundle.min.js"></script>
+        <script src="https://d3js.org/topojson.v2.min.js"></script>
         <style>
             body {
                 font-family: sans-serif;
-                background-color: #d3d3d3;
             }
 
             h1, h3 {
@@ -26,12 +37,29 @@
             div.child1 {
                 padding-left: 30px;
                 padding-top: 10px;
-                background-color: aqua;
+
             }
             div.child2 {
                 padding-right: 30px;
                 padding-top: 10px;
-                background-color: aqua;
+
+            }
+            path {
+                stroke-width: .6px;
+                stroke: white;
+            }
+            #tooltip {
+                position: absolute;
+                opacity: 0;
+                top: 0;
+                left: 0;
+                width: auto;
+                padding: 10px;
+                background: white;
+                font-family: sans-serif;
+                font-size: medium;
+                border-radius: 2px;
+                line-height: 1;
             }
         </style>
     </head>
@@ -40,13 +68,156 @@
             <h1>Major Assignment 4 - Part2</h1>
             <h3>by Abhijot Bedi (01908371)</h3>
         </div>
+        <h6 style="text-align: center; text-transform: capitalize; margin-top: 3cm;">The plots show the household income across the US in 2019, and cartogram data was made in QGIS on the difference of total household income and household income where people are sicty and above.</h6>
         <div class="parentdiv">
             <div class="child1" style="width: 45%; float: left;">
-                <svg id="svg_choropleth" viewBox="0 0 1000 800"></svg>
+                <svg id="svg_choropleth" width="40vw" height="80vh" viewBox="0 0 1000 800"></svg>
             </div>
             <div class="child2" style="width: 45%; float: right;">
-                <svg id="svg_cartogram" viewBox="0 0 1000 800"></svg>
+                <svg id="svg_cartogram" width="40vw" height="80vh"  viewBox="0 0 1000 800"></svg>
             </div>
         </div>
+        <div id="tooltip">
+        </div>
+
+        <script>
+            // load data
+            let hincome_data = "data/state_h_income.csv"
+            let geojson_cartogram = "data/states_cartogram.geojson";
+            let geojson_choropleth = "data/us_states.json";
+           
+
+            Promise.all(
+                [
+                    d3.json(geojson_cartogram),
+                    d3.json(geojson_choropleth),
+                    d3.csv(hincome_data)
+                ],d3.autoType()).then(main)
+
+            function main(data) {
+
+                let hin_data = {}
+                d3.map(data[2],function (d) {
+                    let geo = d.GEOID.toString()
+                    if(geo.length<2){
+                        geo=0+geo
+                    }
+                    hin_data[geo] =
+                        {   geoid: geo,
+                            name: d.name,
+                            income: +d.household_income,
+                            diff: +d.diff,
+                            sixty: +d.sixtyandabove
+                        }})
+                    console.log(hin_data)
+
+                    let hh = d3.group(data[2], function(d){
+                        let geo = d.GEOID.toString()
+                        if(geo.length<2){
+                            geo=0+geo;
+                            return geo;
+                        }
+                        return geo;
+                    });
+
+
+                    let colorscheme = d3.schemeReds[6];
+                    colorscheme.unshift("#eee");
+                    let colorScale = d3.scaleThreshold()
+                        .domain([1,900000, 1500000, 5000000, 7000000, 1000000])
+                        .range(colorscheme);
+
+                    function mapGenerator(geoData_features,svg_id,title,scale=1200)
+                    {
+                        let width = 1000
+                        let height= 1000
+                        let svg = d3.select(svg_id)
+                        let tooltip = d3.select("#tooltip");
+                        svg.append("text")
+                            .attr("x", width/2 -200)
+                            .attr("y",height* 0.08 )
+                            .attr("class","title")
+                            .text(title)
+                        let projection = d3.geoAlbersUsa()
+                            .scale(scale).translate([width/2, 2*height/5])
+                        let geo_generator = d3.geoPath().projection(projection);
+                            let mapCanvas = svg.append('g').attr("class",'mapCanvas')
+                            mapCanvas.selectAll('path')
+                                .data(geoData_features)
+                                .enter()
+                                .append('path')
+                                .attr("class","path_geo")
+                                .attr("d",geo_generator)
+                                .attr("fill",function (d){
+                                    try{
+                                        if(d.properties.GEOID){
+                                            tt = (hin_data[d.properties.GEOID]["income"]);
+                                            ss = (hin_data[d.properties.GEOID]["diff"]);
+                                            return colorScale(parseInt(hin_data[d.properties.GEOID]["income"]));
+                                        }
+                                        else{
+                                            return colorScale(parseInt(hin_data[d.properties.STATE]["income"]));
+                                        }
+                                    }
+                                    catch (error)
+                                    {
+                                        return "white"
+                                    }
+                                }) 
+                                .on("mouseenter", (m, d) => {
+                                    tooltip.transition()
+                                        .duration(200)
+                                        .style("opacity", .9)
+
+                                    if(d.properties.GEOID){
+                                        tooltip.html("State: " + d.properties.NAME +
+                                            "<br>" + "Household Income: " + hin_data[d.properties.GEOID]["income"] +
+                                            "<br>" + "Income of 60 years and above: " + hin_data[d.properties.GEOID]["sixty"] +
+                                            "<br>" + "Difference b/w total and 60yo&above: "  + hin_data[d.properties.GEOID]["diff"])
+                                            .style("left", m.clientX + "px")
+                                            .style("top", m.clientY + "px");
+                                    }
+                                    else{
+                                        tooltip.html("State: " + d.properties.NAME +
+                                        "<br>" + "Household Income: "  + hin_data[d.properties.STATE]["income"] +
+                                        "<br>" + "Income of 60 years and above: "  + hin_data[d.properties.STATE]["sixty"] +
+                                        "<br>" + "Difference b/w total and 60yo&above: "  + hin_data[d.properties.STATE]["diff"])
+                                        .style("left", m.clientX + "px")
+                                        .style("top", m.clientY + "px");
+                                    } 
+
+                                })
+                                .on("mousemove", (m, d) => {
+                                    tooltip.style("opacity", .9)
+                                })
+                                .on("mouseout", (m, d) => {
+                                    tooltip.transition()
+                                        .duration(200)
+                                        .style("opacity", 0)
+                                })
+                    
+                            svg.call(d3.zoom()
+                                .extent([[0,0],[1000,1000]])
+                                .scaleExtent([1,12])
+                                .on("zoom",zoomed)
+                            )
+                            function zoomed({transform}){
+                                d3.selectAll(".mapCanvas").attr("transform",transform)
+                    }
+
+                    }
+
+                    let geoJson_cartogram = data[0].features;
+
+
+                    let geoJson_choropleth = data[1].features;
+
+
+                    
+                    mapGenerator(geoJson_cartogram,'#svg_cartogram',title='US States Household Income Cartogram',scale=1300)
+                    mapGenerator(geoJson_choropleth,'#svg_choropleth',title='US States Household Income Choropleth',scale=1300)
+            }
+
+        </script>
     </body>
 </html>
