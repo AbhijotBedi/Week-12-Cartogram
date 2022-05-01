@@ -1,52 +1,52 @@
-name,household_income
-Alabama,1897576
-Alaska,252199
-Arizona,2670441
-Arkansas,1163647
-California,13157873
-Colorado,2235103
-Connecticut,1377166
-Delaware,376239
-District of Columbia,291570
-Florida,7905832
-Georgia,3852714
-Hawaii,465299
-Idaho,655859
-Illinois,4866006
-Indiana,2597765
-Iowa,1287221
-Kansas,1138329
-Kentucky,1748732
-Louisiana,1741076
-Maine,573618
-Maryland,2226767
-Massachusetts,2650680
-Michigan,3969880
-Minnesota,2222568
-Mississippi,1100229
-Missouri,2458337
-Montana,437651
-Nebraska,771444
-Nevada,1143557
-New Hampshire,541396
-New Jersey,3286264
-New Mexico,793420
-New York,7446812
-North Carolina,4046348
-North Dakota,323519
-Ohio,4730340
-Oklahoma,1495151
-Oregon,1649352
-Pennsylvania,5119249
-Rhode Island,407174
-South Carolina,1975915
-South Dakota,353799
-Tennessee,2654737
-Texas,9985126
-Utah,1023855
-Vermont,262767
-Virginia,3191847
-Washington,2932477
-West Virginia,728175
-Wisconsin,2386623
-Wyoming,233128
+GEOID,name,household_income
+01,Alabama,1897576
+02,Alaska,252199
+04,Arizona,2670441
+05,Arkansas,1163647
+06,California,13157873
+08,Colorado,2235103
+09,Connecticut,1377166
+10,Delaware,376239
+11,District of Columbia,291570
+12,Florida,7905832
+13,Georgia,3852714
+15,Hawaii,465299
+16,Idaho,655859
+17,Illinois,4866006
+18,Indiana,2597765
+19,Iowa,1287221
+20,Kansas,1138329
+21,Kentucky,1748732
+22,Louisiana,1741076
+23,Maine,573618
+24,Maryland,2226767
+25,Massachusetts,2650680
+26,Michigan,3969880
+27,Minnesota,2222568
+28,Mississippi,1100229
+29,Missouri,2458337
+30,Montana,437651
+31,Nebraska,771444
+32,Nevada,1143557
+33,New Hampshire,541396
+34,New Jersey,3286264
+35,New Mexico,793420
+36,New York,7446812
+37,North Carolina,4046348
+38,North Dakota,323519
+39,Ohio,4730340
+40,Oklahoma,1495151
+41,Oregon,1649352
+42,Pennsylvania,5119249
+44,Rhode Island,407174
+45,South Carolina,1975915
+46,South Dakota,353799
+47,Tennessee,2654737
+48,Texas,9985126
+49,Utah,1023855
+50,Vermont,262767
+51,Virginia,3191847
+53,Washington,2932477
+54,West Virginia,728175
+55,Wisconsin,2386623
+56,Wyoming,233128
